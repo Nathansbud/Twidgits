@@ -2,14 +2,54 @@ const spreadsheet = SpreadsheetApp.getActive()
 const ui = SpreadsheetApp.getUi()
 
 const imageIds = {
-  runArrow: "17EdBPvXpy7Cgak6uPt9K9b-w5DbNjVZI"
+  runArrow: "17EdBPvXpy7Cgak6uPt9K9b-w5DbNjVZI",
+  dice: {
+    1: "1OlInnt7rA_8mZFgR4I7OHxHPl3LR9edD",
+    2: "15sk7NnImMOzS1UEPDgN2j_kvsgOda1DA",
+    3: "1X3rv1EybKcJgQD1p__Q3UkOaqnhMeqMO",
+    4: "1q3zFWbKPgkyJ6fQ5pIde12ixmzc5ggZV",
+    5: "1Q5UpbEwvtTk0HHnrNtAU9IkbqrjtoyDD",
+    6: "1M-ZPbdxJlMMPVewwdEA6MbR1cZAwW1sa"    
+  },
+  coin: {
+    0:"1ttP7jeBURnhvIOF2XvsCO7rqoyQcHCRZ", //Tails
+    1:"1sOMgMhrDAoC8K0G1tABldh5RnWMWkLcZ" //Heads
+  }
 }
 
 const funcMap = {
   "Order Randomizer":"orderRandomizer",
-  "Group Creator":"groupCreator"
+  "Group Creator":"groupCreator",
+  "Coin Flip":"coinFlip",
+  "Dice Roll":"diceRoll",
+  "Random Student":"randomStudent"
 }
+
+
 const imageUrl = (imid) => `https://docs.google.com/uc?export=view&id=${imid}`
+
+function diceRoll() {
+  const result = Math.floor(Math.random()*6)+1
+  const diceUrl = imageUrl(imageIds.dice[result])
+  const htmlOutput = HtmlService.createHtmlOutput(`<h2>You rolled...a ${result}!</h2><br><img width='200' height='200' src="${diceUrl}"/>`).setWidth(250).setHeight(400)
+  ui.showModalDialog(htmlOutput, "Dice Roll")
+}
+
+function coinFlip() {
+  const result = Math.round(Math.random())
+  const coinUrl = imageUrl(imageIds.coin[result])
+  const htmlOutput = HtmlService.createHtmlOutput(`<h2>You flipped...${((result == 1) ? ("Heads"): ("Tails"))}!</h2><br><img width='200' height='200' src="${coinUrl}"/>`).setWidth(250).setHeight(400)
+  ui.showModalDialog(htmlOutput, "Coin Flip")
+}
+
+
+function randomStudent() {
+  if((classList = getClassList()).length > 0) {
+    ui.alert(`Random Student: ${shuffle(classList)[0]}`)
+  } else {
+    ui.alert("No students found--make sure to add students to the Class List tab!")
+  }
+}
 
 function orderRandomizer() {
   if((classList = getClassList()).length > 0) {
@@ -39,12 +79,6 @@ function getClassList() {
     return classTab.getRange(2, 1, classTab.getLastRow() - 1, 2).getDisplayValues().map(r => r.map(np => np.trim()).join(" "))
   }
 }
-
-
-function test(){
-  Logger.log(getClassList())
-}
-
 
 function createImages() {
   const homeTab = spreadsheet.getSheetByName("Home")
